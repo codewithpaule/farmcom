@@ -1,0 +1,1089 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Contact Us - FarmProduce</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <style>
+        :root {
+            --primary-green: #2E8B57;
+            --light-green: #90EE90;
+            --dark-green: #1F5F3F;
+            --accent-green: #3CB371;
+            --white: #FFFFFF;
+            --light-gray: #F5F5F5;
+            --dark-gray: #333333;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            overflow-x: hidden;
+            background-color: var(--light-gray);
+            color: var(--dark-gray);
+        }
+        
+        /* Cart Drawer Styles */
+        .cart-drawer {
+            position: fixed;
+            top: 0;
+            right: -400px;
+            width: 400px;
+            height: 100vh;
+            background-color: white;
+            box-shadow: -5px 0 15px rgba(0,0,0,0.1);
+            z-index: 1050;
+            transition: right 0.3s ease-out;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .cart-drawer.open {
+            right: 0;
+        }
+        
+        .cart-header {
+            padding: 1.5rem;
+            border-bottom: 1px solid #eee;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background-color: var(--primary-green);
+            color: white;
+        }
+        
+        .cart-header h3 {
+            margin: 0;
+            font-size: 1.25rem;
+        }
+        
+        .close-cart {
+            background: none;
+            border: none;
+            color: white;
+            font-size: 1.5rem;
+            cursor: pointer;
+        }
+        
+        .cart-items {
+            flex: 1;
+            overflow-y: auto;
+            padding: 1.5rem;
+        }
+        
+        .cart-item {
+            display: flex;
+            margin-bottom: 1.5rem;
+            padding-bottom: 1.5rem;
+            border-bottom: 1px solid #eee;
+        }
+        
+        .cart-item-img {
+            width: 80px;
+            height: 80px;
+            background-color: #f8f9fa;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 1rem;
+            font-size: 1.5rem;
+        }
+        
+        .cart-item-details {
+            flex: 1;
+        }
+        
+        .cart-item-title {
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+        }
+        
+        .cart-item-price {
+            color: var(--primary-green);
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+        }
+        
+        .cart-item-quantity {
+            display: flex;
+            align-items: center;
+        }
+        
+        .quantity-btn {
+            width: 30px;
+            height: 30px;
+            border: 1px solid #ddd;
+            background: none;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+        }
+        
+        .quantity-input {
+            width: 40px;
+            text-align: center;
+            border: 1px solid #ddd;
+            border-left: none;
+            border-right: none;
+            height: 30px;
+        }
+        
+        .remove-item {
+            color: #dc3545;
+            background: none;
+            border: none;
+            cursor: pointer;
+            margin-left: auto;
+            align-self: flex-start;
+        }
+        
+        .cart-footer {
+            padding: 1.5rem;
+            border-top: 1px solid #eee;
+            background-color: #f8f9fa;
+        }
+        
+        .cart-total {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 1.5rem;
+            font-weight: 600;
+            font-size: 1.1rem;
+        }
+        
+        .checkout-btn {
+            width: 100%;
+            padding: 12px;
+            background-color: var(--primary-green);
+            color: white;
+            border: none;
+            border-radius: 5px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        
+        .checkout-btn:hover {
+            background-color: var(--dark-green);
+        }
+        
+        .overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: rgba(0,0,0,0.5);
+            z-index: 1040;
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.3s, visibility 0.3s;
+        }
+        
+        .overlay.active {
+            opacity: 1;
+            visibility: visible;
+        }
+        
+        /* Navigation Styles */
+        .navbar-brand {
+            font-weight: bold;
+            color: var(--primary-green) !important;
+            font-size: 1.5rem;
+        }
+        
+        .navbar-nav .nav-link {
+            font-weight: 500;
+            transition: color 0.3s;
+            position: relative;
+        }
+        
+        .navbar-nav .nav-link:hover {
+            color: var(--primary-green) !important;
+        }
+        
+        .navbar-nav .nav-link.active {
+            color: var(--primary-green) !important;
+            font-weight: 600;
+        }
+        
+        .navbar-nav .nav-link.active::after {
+            content: '';
+            position: absolute;
+            bottom: -5px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 30px;
+            height: 3px;
+            background-color: var(--primary-green);
+            border-radius: 2px;
+        }
+        
+        .cart-badge {
+            position: absolute;
+            top: -8px;
+            right: -8px;
+            background-color: var(--primary-green);
+            color: white;
+            border-radius: 50%;
+            width: 20px;
+            height: 20px;
+            font-size: 0.8rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        /* Page Header */
+        .page-header {
+            background: linear-gradient(135deg, var(--primary-green), var(--dark-green));
+            color: white;
+            padding: 80px 0 60px;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .page-header::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><circle cx="10" cy="10" r="1" fill="rgba(255,255,255,0.1)"/><circle cx="30" cy="25" r="1.5" fill="rgba(255,255,255,0.08)"/><circle cx="60" cy="15" r="1" fill="rgba(255,255,255,0.1)"/><circle cx="80" cy="35" r="1.2" fill="rgba(255,255,255,0.06)"/></svg>') repeat;
+            animation: float 20s infinite linear;
+        }
+        
+        @keyframes float {
+            0% { transform: translateY(0px); }
+            100% { transform: translateY(-100px); }
+        }
+        
+        .page-header h1 {
+            font-size: 2.8rem;
+            font-weight: bold;
+            text-align: center;
+            margin-bottom: 1rem;
+            position: relative;
+            z-index: 2;
+        }
+        
+        .breadcrumb-custom {
+            background: rgba(255,255,255,0.15);
+            border-radius: 30px;
+            padding: 12px 20px;
+            display: inline-flex;
+            align-items: center;
+            backdrop-filter: blur(10px);
+            position: relative;
+            z-index: 2;
+        }
+        
+        .breadcrumb-custom a {
+            color: var(--light-green);
+            text-decoration: none;
+            font-weight: 500;
+            transition: color 0.3s;
+        }
+        
+        .breadcrumb-custom a:hover {
+            color: white;
+        }
+        
+        .breadcrumb-custom .separator {
+            margin: 0 12px;
+            color: rgba(255,255,255,0.6);
+        }
+        
+        .breadcrumb-custom .current {
+            color: white;
+            font-weight: 600;
+        }
+        
+        /* Contact Section Styles */
+        .contact-section {
+            padding: 80px 0;
+            background: linear-gradient(45deg, #f8f9fa 0%, #e9ecef 100%);
+        }
+        
+        .contact-container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 40px;
+            margin-bottom: 50px;
+        }
+        
+        .contact-info {
+            background-color: var(--white);
+            padding: 40px;
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            border: 1px solid rgba(46, 139, 87, 0.1);
+        }
+        
+        .contact-info:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 20px 40px rgba(46, 139, 87, 0.15);
+        }
+        
+        .contact-info h2 {
+            color: var(--primary-green);
+            margin-bottom: 30px;
+            font-size: 2.2rem;
+            font-weight: bold;
+            position: relative;
+        }
+        
+        .contact-info h2::after {
+            content: '';
+            position: absolute;
+            bottom: -10px;
+            left: 0;
+            width: 60px;
+            height: 4px;
+            background: linear-gradient(90deg, var(--primary-green), var(--accent-green));
+            border-radius: 2px;
+        }
+        
+        .info-item {
+            display: flex;
+            align-items: flex-start;
+            margin-bottom: 25px;
+            padding: 15px;
+            border-radius: 10px;
+            transition: background-color 0.3s ease;
+        }
+        
+        .info-item:hover {
+            background-color: rgba(46, 139, 87, 0.05);
+        }
+        
+        .info-icon {
+            font-size: 1.8rem;
+            margin-right: 20px;
+            color: var(--primary-green);
+            width: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .info-text h4 {
+            margin-bottom: 8px;
+            color: var(--dark-gray);
+            font-weight: 600;
+            font-size: 1.1rem;
+        }
+        
+        .info-text p {
+            color: #666;
+            margin-bottom: 5px;
+            line-height: 1.6;
+        }
+        
+        .info-text a {
+            color: var(--primary-green);
+            text-decoration: none;
+            font-weight: 500;
+            transition: color 0.3s;
+        }
+        
+        .info-text a:hover {
+            color: var(--dark-green);
+        }
+        
+        .contact-form {
+            background-color: var(--white);
+            padding: 40px;
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            border: 1px solid rgba(46, 139, 87, 0.1);
+        }
+        
+        .contact-form:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 20px 40px rgba(46, 139, 87, 0.15);
+        }
+        
+        .contact-form h2 {
+            color: var(--primary-green);
+            margin-bottom: 30px;
+            font-size: 2.2rem;
+            font-weight: bold;
+            position: relative;
+        }
+        
+        .contact-form h2::after {
+            content: '';
+            position: absolute;
+            bottom: -10px;
+            left: 0;
+            width: 60px;
+            height: 4px;
+            background: linear-gradient(90deg, var(--primary-green), var(--accent-green));
+            border-radius: 2px;
+        }
+        
+        .form-group {
+            margin-bottom: 25px;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: var(--dark-gray);
+        }
+        
+        .form-group input,
+        .form-group textarea,
+        .form-group select {
+            width: 100%;
+            padding: 15px;
+            border: 2px solid #e9ecef;
+            border-radius: 10px;
+            font-size: 16px;
+            transition: border-color 0.3s ease, box-shadow 0.3s ease;
+            background-color: #f8f9fa;
+        }
+        
+        .form-group input:focus,
+        .form-group textarea:focus,
+        .form-group select:focus {
+            outline: none;
+            border-color: var(--primary-green);
+            box-shadow: 0 0 0 0.2rem rgba(46, 139, 87, 0.25);
+            background-color: white;
+        }
+        
+        .form-group textarea {
+            height: 120px;
+            resize: vertical;
+        }
+        
+        .submit-btn {
+            background: linear-gradient(135deg, var(--primary-green), var(--accent-green));
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 10px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 600;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            width: 100%;
+        }
+        
+        .submit-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(46, 139, 87, 0.3);
+        }
+        
+        .map-container {
+            margin-top: 50px;
+            height: 400px;
+            background: linear-gradient(135deg, var(--light-green), #E8F5E9);
+            border-radius: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2rem;
+            color: var(--primary-green);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            transition: transform 0.3s ease;
+        }
+        
+        .map-container:hover {
+            transform: translateY(-5px);
+        }
+        
+        /* Footer */
+        footer {
+            background: linear-gradient(135deg, #2c3e50, #34495e);
+            color: white;
+            padding: 4rem 0 1rem;
+        }
+        
+        footer h5 {
+            color: var(--light-green);
+            font-weight: bold;
+            margin-bottom: 1.5rem;
+            position: relative;
+        }
+        
+        footer h5::after {
+            content: '';
+            position: absolute;
+            bottom: -5px;
+            left: 0;
+            width: 40px;
+            height: 2px;
+            background-color: var(--primary-green);
+        }
+        
+        footer ul {
+            list-style: none;
+            padding: 0;
+        }
+        
+        footer ul li {
+            margin-bottom: 0.8rem;
+            transition: transform 0.2s;
+        }
+        
+        footer ul li:hover {
+            transform: translateX(5px);
+        }
+        
+        footer ul li a {
+            color: #bdc3c7;
+            text-decoration: none;
+            transition: color 0.3s;
+        }
+        
+        footer ul li a:hover {
+            color: white;
+        }
+        
+        .copyright {
+            background-color: rgba(0,0,0,0.2);
+            padding: 1.5rem 0;
+            margin-top: 3rem;
+            text-align: center;
+            color: #95a5a6;
+            border-top: 1px solid rgba(255,255,255,0.1);
+        }
+        
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .page-header h1 {
+                font-size: 2rem;
+            }
+            
+            .contact-container {
+                grid-template-columns: 1fr;
+            }
+            
+            .contact-info,
+            .contact-form {
+                padding: 25px;
+            }
+            
+            .contact-info h2,
+            .contact-form h2 {
+                font-size: 1.8rem;
+            }
+            
+            .info-item {
+                padding: 10px;
+            }
+            
+            .info-icon {
+                font-size: 1.5rem;
+                width: 35px;
+            }
+            
+            .map-container {
+                height: 300px;
+                font-size: 1.5rem;
+            }
+            
+            .search-form {
+                width: 100%;
+                margin-top: 1rem;
+            }
+            
+            /* Responsive cart drawer */
+            .cart-drawer {
+                width: 90%;
+                right: -90%;
+            }
+            
+            .cart-drawer.open {
+                right: 0;
+            }
+        }
+        
+        @media (max-width: 576px) {
+            .contact-info h2,
+            .contact-form h2 {
+                font-size: 1.5rem;
+            }
+            
+            .contact-info,
+            .contact-form {
+                padding: 20px;
+            }
+            
+            .form-group input,
+            .form-group textarea {
+                padding: 12px;
+            }
+            
+            .submit-btn {
+                padding: 12px 25px;
+            }
+        }
+        
+        /* Loading animation */
+        .contact-info,
+        .contact-form {
+            animation: fadeInUp 0.6s ease forwards;
+            opacity: 0;
+            transform: translateY(30px);
+        }
+        
+        .contact-form {
+            animation-delay: 0.2s;
+        }
+        
+        @keyframes fadeInUp {
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Cart Overlay -->
+    <div class="overlay" id="cartOverlay"></div>
+    
+    <!-- Cart Drawer -->
+    <div class="cart-drawer" id="cartDrawer">
+        <div class="cart-header">
+            <h3><i class="fas fa-shopping-cart me-2"></i>Your Cart</h3>
+            <button class="close-cart" id="closeCart">&times;</button>
+        </div>
+        <div class="cart-items" id="cartItems">
+            <!-- Cart items will be added here dynamically -->
+            <div class="text-center py-5">
+                <i class="fas fa-shopping-cart fa-3x text-muted mb-3"></i>
+                <p class="text-muted">Your cart is empty</p>
+            </div>
+        </div>
+        <div class="cart-footer">
+            <div class="cart-total">
+                <span>Total:</span>
+                <span id="cartTotal">₦0.00</span>
+            </div>
+            <button class="checkout-btn">Proceed to Checkout</button>
+        </div>
+    </div>
+
+    <!-- Navigation -->
+    <nav class="navbar navbar-expand-lg navbar-light bg-white shadow-sm sticky-top">
+        <div class="container">
+            <a class="navbar-brand" href="#"><i class="fas fa-seedling me-2"></i>Farm<span class="text-dark">Produce</span></a>
+            
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav mx-auto">
+                    <li class="nav-item">
+                        <a class="nav-link" href="index.html">Home</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="products.html">Products</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="categories.html">Categories</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="about.html">About Us</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link active" href="contact.html">Contact</a>
+                    </li>
+                </ul>
+                
+                <div class="d-flex align-items-center">
+                    <form class="d-flex me-3 search-form">
+                        <input class="form-control me-2" type="search" placeholder="Search products..." style="border-radius: 20px;">
+                        <button class="btn btn-outline-success" type="submit" style="border-radius: 20px;">
+                            <i class="fas fa-search"></i>
+                        </button>
+                    </form>
+                    
+                    <div class="position-relative">
+                        <button class="btn btn-outline-dark" id="openCart">
+                            <i class="fas fa-shopping-cart"></i>
+                        </button>
+                        <span class="cart-badge" id="cartBadge">0</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Page Header -->
+    <section class="page-header">
+        <div class="container">
+            <h1><i class="fas fa-envelope me-3"></i>Contact Us</h1>
+            <div class="d-flex justify-content-center">
+                <div class="breadcrumb-custom">
+                    <a href="index.html"><i class="fas fa-home me-2"></i>Home</a>
+                    <span class="separator">•</span>
+                    <span class="current">Contact</span>
+                </div>
+            </div>
+        </div>
+    </section>
+    
+    <!-- Contact Section -->
+    <section class="contact-section">
+        <div class="container">
+            <div class="contact-container">
+                <div class="contact-info">
+                    <h2>Get In Touch</h2>
+                    <div class="info-item">
+                        <div class="info-icon"><i class="fas fa-phone"></i></div>
+                        <div class="info-text">
+                            <h4>Phone</h4>
+                            <p><a href="tel:+2341234567890">+234 123 456 7890</a></p>
+                        </div>
+                    </div>
+                    
+                    <div class="info-item">
+                        <div class="info-icon"><i class="fas fa-envelope"></i></div>
+                        <div class="info-text">
+                            <h4>Email</h4>
+                            <p><a href="mailto:info@farmproduce.com">info@farmproduce.com</a></p>
+                        </div>
+                    </div>
+                    
+                    <div class="info-item">
+                        <div class="info-icon"><i class="fas fa-map-marker-alt"></i></div>
+                        <div class="info-text">
+                            <h4>Address</h4>
+                            <p>123 Farm Road, Agricultural Zone, Delta State Warri Nigeria</p>
+                        </div>
+                    </div>
+                    
+                    <div class="info-item">
+                        <div class="info-icon"><i class="fas fa-clock"></i></div>
+                        <div class="info-text">
+                            <h4>Business Hours</h4>
+                            <p>Monday - Friday: 8:00 AM - 6:00 PM</p>
+                            <p>Saturday: 9:00 AM - 4:00 PM</p>
+                            <p>Sunday: Closed</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="contact-form">
+                    <h2>Send Us a Message</h2>
+                    <form id="contactForm">
+                        <div class="form-group">
+                            <label for="name">Your Name *</label>
+                            <input type="text" id="name" placeholder="Enter your full name" required>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="email">Email Address *</label>
+                            <input type="email" id="email" placeholder="Enter your email address" required>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="subject">Subject</label>
+                            <input type="text" id="subject" placeholder="Enter message subject">
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="message">Your Message *</label>
+                            <textarea id="message" placeholder="Enter your message here..." required></textarea>
+                        </div>
+                        
+                        <button type="submit" class="submit-btn">
+                            <i class="fas fa-paper-plane me-2"></i>Send Message
+                        </button>
+                    </form>
+                </div>
+            </div>
+            
+            <div class="map-container">
+                <div class="text-center">
+                    <i class="fas fa-map-marked-alt fa-3x mb-3"></i>
+                    <h4>Visit Our Location</h4>
+                    <p class="mb-0">123 Farm Road, Agricultural Zone, Delta State Warri Nigeria</p>
+                </div>
+            </div>
+        </div>
+    </section>
+    
+    <!-- Footer -->
+    <footer>
+        <div class="container">
+            <div class="row g-4">
+                <div class="col-lg-3 col-md-6">
+                    <h5><i class="fas fa-seedling me-2"></i>FarmProduce</h5>
+                    <p class="text-muted" style="color: #bdc3c7 !important;">Your trusted marketplace for quality farm products since 2015. Connecting farmers with buyers across Nigeria and beyond.</p>
+                    <div class="d-flex gap-3 mt-3">
+                        <a href="#" class="text-light"><i class="fab fa-facebook-f"></i></a>
+                        <a href="#" class="text-light"><i class="fab fa-twitter"></i></a>
+                        <a href="#" class="text-light"><i class="fab fa-instagram"></i></a>
+                        <a href="#" class="text-light"><i class="fab fa-linkedin-in"></i></a>
+                    </div>
+                </div>
+                
+                <div class="col-lg-3 col-md-6">
+                    <h5>Quick Links</h5>
+                    <ul>
+                        <li><a href="index.html"><i class="fas fa-chevron-right me-2"></i>Home</a></li>
+                        <li><a href="products.html"><i class="fas fa-chevron-right me-2"></i>Products</a></li>
+                        <li><a href="categories.html"><i class="fas fa-chevron-right me-2"></i>Categories</a></li>
+                        <li><a href="about.html"><i class="fas fa-chevron-right me-2"></i>About Us</a></li>
+                        <li><a href="contact.html"><i class="fas fa-chevron-right me-2"></i>Contact</a></li>
+                    </ul>
+                </div>
+                
+                <div class="col-lg-3 col-md-6">
+                    <h5>Categories</h5>
+                    <ul>
+                        <li><a href="livestock.html"><i class="fas fa-chevron-right me-2"></i>Livestock</a></li>
+                        <li><a href="seeds.html"><i class="fas fa-chevron-right me-2"></i>Seeds</a></li>
+                        <li><a href="equipments.html"><i class="fas fa-chevron-right me-2"></i>Equipment</a></li>
+                        <li><a href="fertilizers.html"><i class="fas fa-chevron-right me-2"></i>Fertilizers</a></li>
+                        <li><a href="crops.html"><i class="fas fa-chevron-right me-2"></i>Plant Crops</a></li>
+                    </ul>
+                </div>
+                
+                <div class="col-lg-3 col-md-6">
+                    <h5>Contact Us</h5>
+                    <ul class="list-unstyled">
+                        <li class="mb-2"><i class="fas fa-phone me-2"></i> +234 123 456 7890</li>
+                        <li class="mb-2"><i class="fas fa-envelope me-2"></i> info@farmproduce.com</li>
+                        <li class="mb-2"><i class="fas fa-map-marker-alt me-2"></i> 123 Farm Road, Agricultural Zone, Nigeria</li>
+                        <li class="mt-3">
+                            <small class="text-muted" style="color: #f8f9fa !important;">Open: Mon-Sat 8AM-6PM</small>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+        
+        <div class="copyright">
+            <div class="container">
+                <div class="row align-items-center">
+                    <div class="col-md-6">
+                        <p class="mb-0">&copy; 2025 FarmProduce. All rights reserved.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // Cart functionality
+        const cartDrawer = document.getElementById('cartDrawer');
+        const cartOverlay = document.getElementById('cartOverlay');
+        const openCartBtn = document.getElementById('openCart');
+        const closeCartBtn = document.getElementById('closeCart');
+        const cartBadge = document.getElementById('cartBadge');
+        const cartItemsContainer = document.getElementById('cartItems');
+        const cartTotal = document.getElementById('cartTotal');
+        
+        let cartCount = 0;
+        let cart = [];
+        
+        // Sample product data
+        const sampleProducts = [
+            {
+                id: 1,
+                name: "Premium Maize Seeds",
+                price: 5000,
+                emoji: "🌽",
+                quantity: 1
+            },
+            {
+                id: 2,
+                name: "Broiler Chicks",
+                price: 1200,
+                emoji: "🐔",
+                quantity: 1
+            },
+            {
+                id: 3,
+                name: "NPK Fertilizer",
+                price: 12000,
+                emoji: "🧴",
+                quantity: 1
+            }
+        ];
+        
+        // Toggle cart drawer
+        openCartBtn.addEventListener('click', () => {
+            cartDrawer.classList.add('open');
+            cartOverlay.classList.add('active');
+            document.body.style.overflow = 'hidden';
+        });
+        
+        closeCartBtn.addEventListener('click', () => {
+            cartDrawer.classList.remove('open');
+            cartOverlay.classList.remove('active');
+            document.body.style.overflow = '';
+        });
+        
+        cartOverlay.addEventListener('click', () => {
+            cartDrawer.classList.remove('open');
+            cartOverlay.classList.remove('active');
+            document.body.style.overflow = '';
+        });
+        
+        // Update cart count
+        function updateCartCount(count) {
+            cartCount = count;
+            cartBadge.textContent = cartCount;
+            
+            // Add bounce animation
+            cartBadge.style.animation = 'bounce 0.5s ease';
+            setTimeout(() => {
+                cartBadge.style.animation = '';
+            }, 500);
+        }
+        
+        // Add to cart function
+        function addToCart(productId) {
+            const product = sampleProducts.find(p => p.id === productId);
+            if (product) {
+                const existingItem = cart.find(item => item.id === productId);
+                if (existingItem) {
+                    existingItem.quantity++;
+                } else {
+                    cart.push({...product});
+                }
+                updateCartCount(cart.reduce((total, item) => total + item.quantity, 0));
+                renderCartItems();
+            }
+        }
+        
+        // Remove from cart function
+        function removeFromCart(productId) {
+            cart = cart.filter(item => item.id !== productId);
+            updateCartCount(cart.reduce((total, item) => total + item.quantity, 0));
+            renderCartItems();
+        }
+        
+        // Update quantity function
+        function updateQuantity(productId, newQuantity) {
+            const item = cart.find(item => item.id === productId);
+            if (item) {
+                item.quantity = parseInt(newQuantity) || 1;
+                updateCartCount(cart.reduce((total, item) => total + item.quantity, 0));
+                renderCartItems();
+            }
+        }
+        
+        // Render cart items
+        function renderCartItems() {
+            if (cart.length === 0) {
+                cartItemsContainer.innerHTML = `
+                    <div class="text-center py-5">
+                        <i class="fas fa-shopping-cart fa-3x text-muted mb-3"></i>
+                        <p class="text-muted">Your cart is empty</p>
+                    </div>
+                `;
+                cartTotal.textContent = '₦0.00';
+                return;
+            }
+            
+            let itemsHTML = '';
+            let total = 0;
+            
+            cart.forEach(item => {
+                const itemTotal = item.price * item.quantity;
+                total += itemTotal;
+                
+                itemsHTML += `
+                    <div class="cart-item">
+                        <div class="cart-item-img">${item.emoji}</div>
+                        <div class="cart-item-details">
+                            <div class="cart-item-title">${item.name}</div>
+                            <div class="cart-item-price">₦${item.price.toLocaleString()}</div>
+                            <div class="cart-item-quantity">
+                                <button class="quantity-btn" onclick="updateQuantity(${item.id}, ${item.quantity - 1})">-</button>
+                                <input type="text" class="quantity-input" value="${item.quantity}" 
+                                    onchange="updateQuantity(${item.id}, this.value)">
+                                <button class="quantity-btn" onclick="updateQuantity(${item.id}, ${item.quantity + 1})">+</button>
+                            </div>
+                        </div>
+                        <button class="remove-item" onclick="removeFromCart(${item.id})">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    </div>
+                `;
+            });
+            
+            cartItemsContainer.innerHTML = itemsHTML;
+            cartTotal.textContent = `₦${total.toLocaleString()}`;
+        }
+        
+        // Demo: Add some items to cart
+        setTimeout(() => {
+            addToCart(1);
+            addToCart(2);
+        }, 1000);
+        
+        // Add bounce animation for cart
+        const style = document.createElement('style');
+        style.textContent = `
+            @keyframes bounce {
+                0%, 20%, 60%, 100% { transform: translateY(0); }
+                40% { transform: translateY(-10px); }
+                80% { transform: translateY(-5px); }
+            }
+        `;
+        document.head.appendChild(style);
+        
+        // Smooth scrolling for navigation links
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                const target = document.querySelector(this.getAttribute('href'));
+                if (target) {
+                    target.scrollIntoView({
+                        behavior: 'smooth',
+                        block: 'start'
+                    });
+                }
+            });
+        });
+
+        // Category button click handlers
+        document.querySelectorAll('.btn-category').forEach(button => {
+            button.addEventListener('click', function() {
+                // Add loading state
+                const originalText = this.innerHTML;
+                this.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Loading...';
+                this.disabled = true;
+                
+                // Simulate navigation delay
+                setTimeout(() => {
+                    this.innerHTML = originalText;
+                    this.disabled = false;
+                    // Here you would typically navigate to the category page
+                    console.log('Navigating to category...');
+                }, 1000);
+            });
+        });
+
+        // Search functionality
+        document.querySelector('form').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const searchTerm = this.querySelector('input').value;
+            if (searchTerm.trim()) {
+                console.log('Searching for:', searchTerm);
+                // Implement search functionality here
+            }
+        });
+    </script>
+</body>
+</html>
